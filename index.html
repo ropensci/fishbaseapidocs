@@ -1,0 +1,1214 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>API Reference</title>
+
+    <style>
+      .highlight table td { padding: 5px; }
+.highlight table pre { margin: 0; }
+.highlight, .highlight .w {
+  color: #f8f8f2;
+  background-color: #272822;
+}
+.highlight .err {
+  color: #151515;
+  background-color: #ac4142;
+}
+.highlight .c, .highlight .cd, .highlight .cm, .highlight .c1, .highlight .cs {
+  color: #505050;
+}
+.highlight .cp {
+  color: #f4bf75;
+}
+.highlight .nt {
+  color: #f4bf75;
+}
+.highlight .o, .highlight .ow {
+  color: #d0d0d0;
+}
+.highlight .p, .highlight .pi {
+  color: #d0d0d0;
+}
+.highlight .gi {
+  color: #90a959;
+}
+.highlight .gd {
+  color: #ac4142;
+}
+.highlight .gh {
+  color: #6a9fb5;
+  background-color: #151515;
+  font-weight: bold;
+}
+.highlight .k, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .kv {
+  color: #aa759f;
+}
+.highlight .kc {
+  color: #d28445;
+}
+.highlight .kt {
+  color: #d28445;
+}
+.highlight .kd {
+  color: #d28445;
+}
+.highlight .s, .highlight .sb, .highlight .sc, .highlight .sd, .highlight .s2, .highlight .sh, .highlight .sx, .highlight .s1 {
+  color: #90a959;
+}
+.highlight .sr {
+  color: #75b5aa;
+}
+.highlight .si {
+  color: #8f5536;
+}
+.highlight .se {
+  color: #8f5536;
+}
+.highlight .nn {
+  color: #f4bf75;
+}
+.highlight .nc {
+  color: #f4bf75;
+}
+.highlight .no {
+  color: #f4bf75;
+}
+.highlight .na {
+  color: #6a9fb5;
+}
+.highlight .m, .highlight .mf, .highlight .mh, .highlight .mi, .highlight .il, .highlight .mo, .highlight .mb, .highlight .mx {
+  color: #90a959;
+}
+.highlight .ss {
+  color: #90a959;
+}
+    </style>
+    <link href="stylesheets/screen.css" rel="stylesheet" media="screen" />
+    <link href="stylesheets/print.css" rel="stylesheet" media="print" />
+      <script src="javascripts/all.js"></script>
+  </head>
+
+  <body class="index" data-languages="[&quot;shell&quot;,&quot;ruby&quot;,&quot;python&quot;]">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="images/navbar.png" />
+      </span>
+    </a>
+    <div class="tocify-wrapper">
+      <img src="images/logo.png" />
+        <div class="lang-selector">
+              <a href="#" data-language-name="shell">shell</a>
+              <a href="#" data-language-name="ruby">ruby</a>
+              <a href="#" data-language-name="python">python</a>
+        </div>
+        <div class="search">
+          <input type="text" class="search" id="input-search" placeholder="Search">
+        </div>
+        <ul class="search-results"></ul>
+      <div id="toc">
+      </div>
+        <ul class="toc-footer">
+            <li><a href='https://github.com/tripit/slate'>Documentation Powered by Slate</a></li>
+        </ul>
+    </div>
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+        <h1 id="introduction">Introduction</h1>
+
+<p>Welcome to the Fishbase API! You can use our API to access Fishbase data.</p>
+
+<p>We have examples for Shell, R, Ruby, and Python! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.</p>
+
+<h1 id="base-url">Base URL</h1>
+
+<p><a href="https://fishbase.ropensci.org">https://fishbase.ropensci.org</a></p>
+
+<h1 id="http-methods">HTTP methods</h1>
+
+<p>This is essentially a <code class="prettyprint">read only</code> API. That is, we only allow <code class="prettyprint">GET</code> (and <code class="prettyprint">HEAD</code>) requests on this API.</p>
+
+<p>Requests of all other types will be rejected with appropriate <code class="prettyprint">405</code> code, including <code class="prettyprint">POST</code>, <code class="prettyprint">PUT</code>, <code class="prettyprint">COPY</code>, <code class="prettyprint">HEAD</code>, <code class="prettyprint">DELETE</code>, etc.</p>
+
+<h1 id="response-codes">Response Codes</h1>
+
+<ul>
+<li>200 (OK) - request good!</li>
+<li>302 (Found) - the root <code class="prettyprint">/</code>, redirects to <code class="prettyprint">/heartbeat</code>, and <code class="prettyprint">/docs</code> redirects to these documents</li>
+<li>400 (Bad request) - When you have a malformed request, fix it and try again</li>
+<li>404 (Not found) - When you request a route that does not exist, fix it and try again</li>
+<li>405 (Method not allowed) - When you use a prohibited HTTP method (we only allow <code class="prettyprint">GET</code> and <code class="prettyprint">HEAD</code>)</li>
+<li>500 (Internal server error) - Server got itself in trouble; get in touch with us. (in <a href="https://github.com/ropensci/fishbaseapi/issues">Issues</a>)</li>
+</ul>
+
+<blockquote>
+<p><code class="prettyprint">400</code> responses will look something like</p>
+</blockquote>
+<pre class="highlight shell"><code>HTTP/1.1 400 Bad Request
+Cache-Control: public, must-revalidate, max-age<span class="o">=</span>60
+Connection: close
+Content-Length: 61
+Content-Type: application/json
+Date: Thu, 26 Feb 2015 23:27:57 GMT
+Server: nginx/1.7.9
+Status: 400 Bad Request
+X-Content-Type-Options: nosniff
+
+<span class="o">{</span>
+    <span class="s2">"error"</span>: <span class="s2">"invalid request"</span>,
+    <span class="s2">"message"</span>: <span class="s2">"maximum limit is 5000"</span>
+<span class="o">}</span>
+</code></pre>
+
+<blockquote>
+<p><code class="prettyprint">404</code> responses will look something like</p>
+</blockquote>
+<pre class="highlight shell"><code>HTTP/1.1 404 Not Found
+Cache-Control: public, must-revalidate, max-age<span class="o">=</span>60
+Connection: close
+Content-Length: 27
+Content-Type: application/json
+Date: Thu, 26 Feb 2015 23:27:16 GMT
+Server: nginx/1.7.9
+Status: 404 Not Found
+X-Cascade: pass
+X-Content-Type-Options: nosniff
+
+<span class="o">{</span>
+    <span class="s2">"error"</span>: <span class="s2">"route not found"</span>
+<span class="o">}</span>
+</code></pre>
+
+<blockquote>
+<p><code class="prettyprint">405</code> responses will look something like (with an empty body)</p>
+</blockquote>
+<pre class="highlight shell"><code>HTTP/1.1 405 Method Not Allowed
+Access-Control-Allow-Methods: HEAD, GET
+Access-Control-Allow-Origin: <span class="k">*</span>
+Cache-Control: public, must-revalidate, max-age<span class="o">=</span>60
+Connection: close
+Content-Length: 0
+Content-Type: application/json; <span class="nv">charset</span><span class="o">=</span>utf8
+Date: Mon, 27 Jul 2015 20:48:27 GMT
+Server: nginx/1.9.3
+Status: 405 Method Not Allowed
+X-Content-Type-Options: nosniff
+</code></pre>
+
+<blockquote>
+<p><code class="prettyprint">500</code> responses will look something like</p>
+</blockquote>
+<pre class="highlight shell"><code>HTTP/1.1 500 Internal Server Error
+Cache-Control: public, must-revalidate, max-age<span class="o">=</span>60
+Connection: close
+Content-Length: 24
+Content-Type: application/json
+Date: Thu, 26 Feb 2015 23:19:57 GMT
+Server: nginx/1.7.9
+Status: 500 Internal Server Error
+X-Content-Type-Options: nosniff
+
+<span class="o">{</span>
+    <span class="s2">"error"</span>: <span class="s2">"server error"</span>
+<span class="o">}</span>
+</code></pre>
+
+<h1 id="response-headers">Response headers</h1>
+
+<blockquote>
+<p><code class="prettyprint">200</code> response header will look something like</p>
+</blockquote>
+<pre class="highlight shell"><code>Access-Control-Allow-Methods: HEAD, GET
+Access-Control-Allow-Origin: <span class="k">*</span>
+Cache-Control: public, must-revalidate, max-age<span class="o">=</span>60
+Connection: close
+Content-Length: 10379
+Content-Type: application/json; <span class="nv">charset</span><span class="o">=</span>utf8
+Date: Mon, 09 Mar 2015 23:01:23 GMT
+Server: nginx/1.7.10
+Status: 200 OK
+X-Content-Type-Options: nosniff
+</code></pre>
+
+<h1 id="response-bodies">Response bodies</h1>
+
+<blockquote>
+<p>Response bodies generally look like:</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">[{</span><span class="w">
+    </span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"AnaCat"</span><span class="p">:</span><span class="w"> </span><span class="s2">"potamodromous"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"AquacultureRef"</span><span class="p">:</span><span class="w"> </span><span class="mi">12108</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"Aquarium"</span><span class="p">:</span><span class="w"> </span><span class="s2">"never/rarely"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"AquariumFishII"</span><span class="p">:</span><span class="w"> </span><span class="s2">" "</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"AquariumRef"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"Author"</span><span class="p">:</span><span class="w"> </span><span class="s2">"(Linnaeus, 1758)"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"returned"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+</span><span class="p">}]</span><span class="w">
+</span></code></pre>
+
+<p>Successful requests have 4 slots:</p>
+
+<ul>
+<li>count: Number records found</li>
+<li>returned: Number records returned</li>
+<li>error: If an error did not occur this is <code class="prettyprint">null</code>, otherwise, an error message.</li>
+<li>data: The hash of data if any data returned. If no data found, this is an empty hash (hash of length zero)</li>
+</ul>
+
+<h1 id="media-types">Media Types</h1>
+
+<p>We serve up only JSON in this API. All responses will have <code class="prettyprint">Content-Type: application/json; charset=utf8</code>.</p>
+
+<h1 id="pagination">Pagination</h1>
+
+<p>The query parameters <code class="prettyprint">limit</code> (default = 10) and <code class="prettyprint">offset</code> (default = 0) are always sent on the request (this doesn&rsquo;t apply to some routes, which don&rsquo;t accept any parameters (e.g., <code class="prettyprint">/docs</code>)).</p>
+
+<p>The response body from the server will include data on records found in <code class="prettyprint">count</code> and number returned in <code class="prettyprint">returned</code>:</p>
+
+<ul>
+<li><code class="prettyprint">&quot;count&quot;: 1056</code></li>
+<li><code class="prettyprint">&quot;returned&quot;: 10</code></li>
+</ul>
+
+<p>Ideally, we&rsquo;d put in a helpful <a href="http://jsonapi.org/format/#fetching-pagination">links object</a> - hopefully we&rsquo;ll get that done in the future.</p>
+
+<h1 id="authentication">Authentication</h1>
+
+<p>We don&rsquo;t require any. Cheers :)</p>
+
+<h1 id="parameters">Parameters</h1>
+
+<h2 id="common-parameters">Common parameters</h2>
+
+<ul>
+<li>limit (integer, optional) <code class="prettyprint">number</code> of records to return.
+
+<ul>
+<li>Default: <code class="prettyprint">10</code></li>
+</ul></li>
+<li>offset (integer, optional) Record <code class="prettyprint">number</code> to start at.
+
+<ul>
+<li>Default: <code class="prettyprint">0</code></li>
+</ul></li>
+<li>fields (string, optional) Comma-separated <code class="prettyprint">string</code> of fieds to return.
+
+<ul>
+<li>Example: <code class="prettyprint">SpecCode,Vulnerability</code></li>
+</ul></li>
+</ul>
+
+<p>Above parameters common to all routes except:</p>
+
+<ul>
+<li><a href="#root">root</a></li>
+<li><a href="#heartbeat">heartbeat</a></li>
+<li><a href="#docs">docs</a></li>
+<li><a href="#mysqlping">mysqlping</a></li>
+</ul>
+
+<p>In addition, these do not support <code class="prettyprint">limit</code> or <code class="prettyprint">offset</code>:</p>
+
+<ul>
+<li><a href="#listfields">listfields</a></li>
+</ul>
+
+<h2 id="additional-parameters">Additional parameters</h2>
+
+<p>Right now, any field that is returned from a route can also be queried on, except for the <a href="#taxa">/taxa route</a>, which only accepts <code class="prettyprint">species</code> and <code class="prettyprint">genus</code> in addition to the common parameters. All of the fields from each route are too long to list here - inspect data returned from a small data request, then change your query as desired.</p>
+
+<p>Right now, parameters that are not found are silently dropped. For example, if you query with <code class="prettyprint">/species?foo=bar</code> in a query, and <code class="prettyprint">foo</code> is not a field in <code class="prettyprint">species</code> route, then the <code class="prettyprint">foo=bar</code> part is ignored. We may in the future error when parameters are not found.</p>
+
+<h1 id="routes">Routes</h1>
+
+<h2 id="root">Root</h2>
+
+<p><code class="prettyprint">GET https://fishbase.ropensci.org</code></p>
+<pre class="highlight shell"><code>curl -L <span class="s2">"https://fishbase.ropensci.org"</span>
+</code></pre>
+
+<p>Redirects to <code class="prettyprint">https://fishbase.ropensci.org/heartbeat</code></p>
+
+<h2 id="heartbeat">Heartbeat</h2>
+<pre class="highlight ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
+
+<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
+<span class="n">api</span><span class="p">.</span><span class="nf">kittens</span><span class="p">.</span><span class="nf">get</span>
+</code></pre>
+<pre class="highlight python"><code><span class="kn">import</span> <span class="nn">kittn</span>
+
+<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
+<span class="n">api</span><span class="o">.</span><span class="n">kittens</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+</code></pre>
+<pre class="highlight shell"><code>curl <span class="s2">"https://fishbase.ropensci.org/heartbeat"</span> |  jq .
+</code></pre>
+
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"routes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"/docs/:table?"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/heartbeat"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/mysqlping"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/listfields"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/comnames?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/country?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/countref/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/ecology/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/estimate/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/fecundity/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/fooditems?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/intrcase?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/listfields/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/maturity?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/morphdat/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/morphmet/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/occurrence/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/oxygen/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/popchar?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/popgrowth/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/poplf?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/popll/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/popqb/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/poplw/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/predats?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/ration/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/refrens/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/reproduc/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/spawning?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/speed/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/stocks?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/swimming/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/synonyms?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/faoareas/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/faoarref/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/genera/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/species/:id?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/taxa?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/ecosystem?&lt;params&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"/diet?&lt;params&gt;"</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h2 id="docs">docs</h2>
+
+<blockquote>
+<p>GET [/docs]</p>
+</blockquote>
+
+<p>Get brief description of each table in the Fishbase database.</p>
+
+<ul>
+<li>Response 200 (application/json)
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="docs-by-table">docs by table</h2>
+
+<blockquote>
+<p>GET [/docs/{table}]</p>
+</blockquote>
+
+<p>Get all field names in a table. In the future, the returned data will include metadata on what each field means (understandable to a human), and what kind of data each field holds.</p>
+
+<ul>
+<li>Response 200 (application/json)
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="mysqlping">mysqlping</h2>
+
+<blockquote>
+<p>GET [/myslping]</p>
+</blockquote>
+
+<p>Ping the MySQL server to see if it&rsquo;s up or not. Returns logical.</p>
+
+<h2 id="comnames">comnames</h2>
+
+<blockquote>
+<p>GET [/comnames{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the common names table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="countref">countref</h2>
+
+<blockquote>
+<p>GET [/countref{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Count ref</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="country">country</h2>
+
+<blockquote>
+<p>GET [/country{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the country table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="diet">diet</h2>
+
+<blockquote>
+<p>GET [/diet{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the fish diet table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="ecology">ecology</h2>
+
+<blockquote>
+<p>GET [/ecology{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the ecology table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="ecosystem">ecosystem</h2>
+
+<blockquote>
+<p>GET [/ecosystem{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the ecosystem table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="fao-areas-routes">fao areas routes</h2>
+
+<h3 id="faoareas">faoareas</h3>
+
+<blockquote>
+<p>GET [/faoareas{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h3 id="faoareas-by-id">faoareas by id</h3>
+
+<blockquote>
+<p>GET [/faoareas{id}]</p>
+</blockquote>
+
+<p>List faoareas by id</p>
+
+<ul>
+<li><p>Parameters</p>
+
+<ul>
+<li>id (required, integer, <code class="prettyprint">5</code>) &hellip; faoarea id <code class="prettyprint">number</code>.</li>
+</ul></li>
+<li><p>Response 200</p>
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="faoarref">faoarref</h2>
+
+<blockquote>
+<p>GET [/faoarref{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h3 id="faoarref-by-id">faoarref by id</h3>
+
+<blockquote>
+<p>GET [/faoarref{id}]</p>
+</blockquote>
+
+<p>List faoareas by id</p>
+
+<ul>
+<li><p>Parameters</p>
+
+<ul>
+<li>id (required, integer, <code class="prettyprint">5</code>) &hellip; faoarref id <code class="prettyprint">number</code>.</li>
+</ul></li>
+<li><p>Response 200</p>
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="fecundity">fecundity</h2>
+
+<blockquote>
+<p>GET [/fecundity{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the fecundity table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="fooditems">fooditems</h2>
+
+<blockquote>
+<p>GET [/fooditems{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the fooditems table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="genera">Genera</h2>
+
+<blockquote>
+<p>GET [/genera{?genus}{?species}{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>List genera</p>
+
+<ul>
+<li><p>Parameters</p>
+
+<ul>
+<li>genus (string, optional, <code class="prettyprint">Abalistes</code>) &hellip; String <code class="prettyprint">name</code> of a genus.</li>
+<li>species (string, optional, <code class="prettyprint">filamentosus</code>) &hellip; String <code class="prettyprint">name</code> of a specific epithet.</li>
+</ul></li>
+<li><p>Response 200</p>
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="genera-by-id">Genera by id</h2>
+
+<blockquote>
+<p>GET [/genera/{id}]</p>
+</blockquote>
+
+<p>List genera by id</p>
+
+<ul>
+<li><p>Parameters</p>
+
+<ul>
+<li>id (required, integer, <code class="prettyprint">5</code>) &hellip; Genus id <code class="prettyprint">number</code>.</li>
+</ul></li>
+<li><p>Response 200</p>
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="intrcase">intrcase</h2>
+
+<blockquote>
+<p>GET [/intrcase{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the intrcase table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="listfields">listfields</h2>
+
+<blockquote>
+<p>GET [/listfields{?fields}{?exact}]</p>
+</blockquote>
+
+<p>List fields across all tables. Optionally, search for particular fields. In addition, toggle the <code class="prettyprint">exact</code> parameter to search for an exact match.</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="maturity">maturity</h2>
+
+<blockquote>
+<p>GET [/maturity{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the maturity table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="morphdat">morphdat</h2>
+
+<blockquote>
+<p>GET [/morphdat{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the morphdat table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="morphmet">morphmet</h2>
+
+<blockquote>
+<p>GET [/morphmet{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the morphmet table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="occurrence">occurrence</h2>
+
+<blockquote>
+<p>GET [/occurrence{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the occurrence table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="oxygen">oxygen</h2>
+
+<blockquote>
+<p>GET [/oxygen{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the oxygen table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="popchar">popchar</h2>
+
+<blockquote>
+<p>GET [/popchar{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the popchar table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="popgrowth">popgrowth</h2>
+
+<blockquote>
+<p>GET [/popgrowth{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the popgrowth table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="poplf">poplf</h2>
+
+<blockquote>
+<p>GET [/poplf{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the poplf table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="popll">popll</h2>
+
+<blockquote>
+<p>GET [/popll{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the popll table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="popqb">popqb</h2>
+
+<blockquote>
+<p>GET [/popqb{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the popqb table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="poplw">poplw</h2>
+
+<blockquote>
+<p>GET [/poplw{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the poplw table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="predats">predats</h2>
+
+<blockquote>
+<p>GET [/predats{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the predats table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="ration">ration</h2>
+
+<blockquote>
+<p>GET [/ration{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the ration table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="refrens">refrens</h2>
+
+<blockquote>
+<p>GET [/refrens{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the refrens table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="reproduc">reproduc</h2>
+
+<blockquote>
+<p>GET [/reproduc{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the reproduc table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="species">species</h2>
+
+<blockquote>
+<p>GET [/species{?genus}{?species}{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>List species</p>
+
+<ul>
+<li><p>Parameters</p>
+
+<ul>
+<li>genus (string, optional) &hellip; String <code class="prettyprint">name</code> of a genus.</li>
+<li>species (string, optional) &hellip; String <code class="prettyprint">name</code> of a specific epithet.</li>
+</ul></li>
+<li><p>Response 200</p>
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="species-by-id">Species by id</h2>
+
+<blockquote>
+<p>GET [/species/{id}]</p>
+</blockquote>
+
+<p>List species by id</p>
+
+<ul>
+<li><p>Parameters</p>
+
+<ul>
+<li>id (integer, required, <code class="prettyprint">5</code>) &hellip; Species id <code class="prettyprint">number</code>.</li>
+</ul></li>
+<li><p>Response 200</p>
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="spawning">spawning</h2>
+
+<blockquote>
+<p>GET [/spawning{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the spawning table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="speed">speed</h2>
+
+<blockquote>
+<p>GET [/speed{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the speed table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="stocks">stocks</h2>
+
+<blockquote>
+<p>GET [/stocks{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the stocks table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="swimming">swimming</h2>
+
+<blockquote>
+<p>GET [/swimming{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the swimming table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="synonyms">synonyms</h2>
+
+<blockquote>
+<p>GET [/synonyms{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the synonyms table</p>
+
+<ul>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+<h2 id="taxa">taxa</h2>
+
+<blockquote>
+<p>GET [/taxa{?limit}{?offset}{?fields}]</p>
+</blockquote>
+
+<p>Search the taxa table</p>
+
+<ul>
+<li>Parameters
+
+<ul>
+<li>genus (string, optional) Genus name</li>
+<li>species (string, optional) Specific epithet name</li>
+</ul></li>
+<li>Response 200
+
+<ul>
+<li><a href="#response-headers">Headers</a></li>
+<li><a href="#response-bodies">Body</a></li>
+</ul></li>
+</ul>
+
+          <h1 id="errors">Errors</h1>
+
+<aside class="notice">This error section is stored in a separate file in `includes/_errors.md`. Slate allows you to optionally separate out your docs into many files&hellip;just save them to the `includes` folder and add them to the top of your `index.md`&rsquo;s frontmatter. Files are included in the order listed.</aside>
+
+<p>The Kittn API uses the following error codes:</p>
+
+<table><thead>
+<tr>
+<th>Error Code</th>
+<th>Meaning</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>400</td>
+<td>Bad Request &ndash; Your request sucks</td>
+</tr>
+<tr>
+<td>401</td>
+<td>Unauthorized &ndash; Your API key is wrong</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Forbidden &ndash; The kitten requested is hidden for administrators only</td>
+</tr>
+<tr>
+<td>404</td>
+<td>Not Found &ndash; The specified kitten could not be found</td>
+</tr>
+<tr>
+<td>405</td>
+<td>Method Not Allowed &ndash; You tried to access a kitten with an invalid method</td>
+</tr>
+<tr>
+<td>406</td>
+<td>Not Acceptable &ndash; You requested a format that isn&rsquo;t json</td>
+</tr>
+<tr>
+<td>410</td>
+<td>Gone &ndash; The kitten requested has been removed from our servers</td>
+</tr>
+<tr>
+<td>418</td>
+<td>I&rsquo;m a teapot</td>
+</tr>
+<tr>
+<td>429</td>
+<td>Too Many Requests &ndash; You&rsquo;re requesting too many kittens! Slow down!</td>
+</tr>
+<tr>
+<td>500</td>
+<td>Internal Server Error &ndash; We had a problem with our server. Try again later.</td>
+</tr>
+<tr>
+<td>503</td>
+<td>Service Unavailable &ndash; We&rsquo;re temporarially offline for maintanance. Please try again later.</td>
+</tr>
+</tbody></table>
+
+      </div>
+      <div class="dark-box">
+          <div class="lang-selector">
+                <a href="#" data-language-name="shell">shell</a>
+                <a href="#" data-language-name="ruby">ruby</a>
+                <a href="#" data-language-name="python">python</a>
+          </div>
+      </div>
+    </div>
+  </body>
+</html>
