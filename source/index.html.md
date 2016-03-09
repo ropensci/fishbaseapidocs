@@ -2,15 +2,17 @@
 title: API Reference
 
 language_tabs:
+  - http
   - shell
+  - r
   - ruby
-  - python
 
 toc_footers:
-  - <a href='https://github.com/tripit/slate'>Documentation Powered by Slate</a>
-
-includes:
-  - errors
+  - <a href='http://www.fishbase.org/search.php'>Fishbase</a>
+  - <a href='http://www.sealifebase.org'>Sealifebase</a>
+  - <a href='https://ropensci.org/'>rOpenSci</a>
+  - <a href='https://github.com/ropensci/'>rOpenSci @ GitHub</a>
+  - <a href='https://github.com/ropensci/fishbaseapidocs'>Contribute to these docs</a>
 
 search: true
 ---
@@ -19,11 +21,21 @@ search: true
 
 Welcome to the Fishbase API! You can use our API to access Fishbase data.
 
-We have examples for Shell, R, Ruby, and Python! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
+We have examples for Shell (using `curl` and `jq`), R, and Ruby! You can view code examples in the dark area to the right (or below if on mobile), and you can switch the programming language of the examples with the tabs in the top right.
 
 # Base URL
 
 [https://fishbase.ropensci.org](https://fishbase.ropensci.org)
+
+# Fishbase vs. Sealifebase
+
+In addition to Fishbase, we also server [Sealifebase](http://www.sealifebase.org/) data from this API.
+
+To use Sealifebase API insted of Fishbase, add `/sealifebase` to the base URL, like:
+
+[https://fishbase.ropensci.org/sealifebase](https://fishbase.ropensci.org/sealifebase)
+
+Everything described below should work the same for both Fishbase and Sealife base APIs.
 
 # HTTP methods
 
@@ -42,7 +54,7 @@ Requests of all other types will be rejected with appropriate `405` code, includ
 
 > `400` responses will look something like
 
-```shell
+```
 HTTP/1.1 400 Bad Request
 Cache-Control: public, must-revalidate, max-age=60
 Connection: close
@@ -61,7 +73,7 @@ X-Content-Type-Options: nosniff
 
 > `404` responses will look something like
 
-```shell
+```
 HTTP/1.1 404 Not Found
 Cache-Control: public, must-revalidate, max-age=60
 Connection: close
@@ -80,7 +92,7 @@ X-Content-Type-Options: nosniff
 
 > `405` responses will look something like (with an empty body)
 
-```shell
+```
 HTTP/1.1 405 Method Not Allowed
 Access-Control-Allow-Methods: HEAD, GET
 Access-Control-Allow-Origin: *
@@ -96,7 +108,7 @@ X-Content-Type-Options: nosniff
 
 > `500` responses will look something like
 
-```shell
+```
 HTTP/1.1 500 Internal Server Error
 Cache-Control: public, must-revalidate, max-age=60
 Connection: close
@@ -112,11 +124,26 @@ X-Content-Type-Options: nosniff
 }
 ```
 
+Occassionally you may get a MySQL error message in your `error` slot. Get in touch
+with us if that happens as that shouldn't be happening, and we'll need to fix
+something on our end.
+
 # Response headers
+
+Response headers give the following noteable things:
+
+* allowed methods on a route
+* allowed origins
+* cache information
+* body content length
+* content type (JSON)
+* date
+* server info
+* http status code
 
 > `200` response header will look something like
 
-```shell
+```
 Access-Control-Allow-Methods: HEAD, GET
 Access-Control-Allow-Origin: *
 Cache-Control: public, must-revalidate, max-age=60
@@ -134,29 +161,32 @@ X-Content-Type-Options: nosniff
 > Response bodies generally look like:
 
 ```json
-[{
+{
     "count": 1,
+    "returned": 1,
     "data": [
-    {
+      {
         "AnaCat": "potamodromous",
         "AquacultureRef": 12108,
         "Aquarium": "never/rarely",
         "AquariumFishII": " ",
         "AquariumRef": null,
         "Author": "(Linnaeus, 1758)"
-    }
+      }
     ],
-    "error": null,
-    "returned": 1
-}]
+    "error": null
+}
 ```
 
-Successful requests have 4 slots:
+Responses have 4 slots:
 
 * count: Number records found
 * returned: Number records returned
 * error: If an error did not occur this is `null`, otherwise, an error message.
 * data: The hash of data if any data returned. If no data found, this is an empty hash (hash of length zero)
+
+Responses with errors also have the same 4 slots, but no data returned, and there should be an
+informative error message.
 
 # Media Types
 
@@ -164,7 +194,9 @@ We serve up only JSON in this API. All responses will have `Content-Type: applic
 
 # Pagination
 
-The query parameters `limit` (default = 10) and `offset` (default = 0) are always sent on the request (this doesn't apply to some routes, which don't accept any parameters (e.g., `/docs`)).
+The query parameters `limit` (default = 10) and `offset` (default = 0) can be used
+to toggle the number of results you get back and what record you start at. This
+doesn't apply to some routes, which don't accept any parameters (e.g., [docs](#docs)).
 
 The response body from the server will include data on records found in `count` and number returned in `returned`:
 
@@ -193,9 +225,8 @@ Above parameters common to all routes except:
 * [root](#root)
 * [heartbeat](#heartbeat)
 * [docs](#docs)
-* [mysqlping](#mysqlping)
 
-In addition, these do not support `limit` or `offset`:
+In addition, these routes do not support `limit` or `offset`:
 
 * [listfields](#listfields)
 
@@ -207,6 +238,13 @@ Right now, parameters that are not found are silently dropped. For example, if y
 
 # Routes
 
+<aside class="notice">
+Shell examples below using <code>curl</code> sometimes use the command line tool <code>jq</code>,
+a tool to parse JSON. If you don't want to use <code>jq</code> - just remove the pipe and
+everything after it. If you do, see <a href="https://stedolan.github.io/jq/">stedolan.github.io/jq</a>
+for installation and usage.
+</aside>
+
 ## Root
 
 `GET https://fishbase.ropensci.org`
@@ -217,29 +255,22 @@ curl -L "https://fishbase.ropensci.org"
 
 Redirects to `https://fishbase.ropensci.org/heartbeat`
 
+<aside class="notice">
+Note that when using <code>curl</code> you need to use the <code>-L</code> flag
+to follow redirects.
+</aside>
+
 ## Heartbeat
 
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
-```
+Lists all the routes, and gives some indicaion of what can be passed to them.
 
 ```shell
 curl "https://fishbase.ropensci.org/heartbeat" |  jq .
 ```
 
-> The above command returns JSON structured like this:
+The above command returns JSON structured like this:
 
-```json
+```shell
 {
   "routes": [
     "/docs/:table?",
@@ -247,43 +278,45 @@ curl "https://fishbase.ropensci.org/heartbeat" |  jq .
     "/mysqlping",
     "/listfields",
     "/comnames?<params>",
-    "/country?<params>",
-    "/countref/:id?<params>",
-    "/ecology/:id?<params>",
-    "/estimate/:id?<params>",
-    "/fecundity/:id?<params>",
-    "/fooditems?<params>",
-    "/intrcase?<params>",
-    "/listfields/:id?<params>",
-    "/maturity?<params>",
-    "/morphdat/:id?<params>",
-    "/morphmet/:id?<params>",
-    "/occurrence/:id?<params>",
-    "/oxygen/:id?<params>",
-    "/popchar?<params>",
-    "/popgrowth/:id?<params>",
-    "/poplf?<params>",
-    "/popll/:id?<params>",
-    "/popqb/:id?<params>",
-    "/poplw/:id?<params>",
-    "/predats?<params>",
-    "/ration/:id?<params>",
-    "/refrens/:id?<params>",
-    "/reproduc/:id?<params>",
-    "/spawning?<params>",
-    "/speed/:id?<params>",
-    "/stocks?<params>",
-    "/swimming/:id?<params>",
-    "/synonyms?<params>",
-    "/faoareas/:id?<params>",
-    "/faoarref/:id?<params>",
-    "/genera/:id?<params>",
-    "/species/:id?<params>",
-    "/taxa?<params>",
-    "/ecosystem?<params>",
-    "/diet?<params>"
+    "/country?<params>"
   ]
 }
+```
+
+```r
+library("rfishbase")
+library("httr")
+library("jsonlite")
+
+res <- rfishbase::heartbeat()
+jsonlite::fromJSON(httr::content(res, "text"))
+```
+
+```r
+$routes
+ [1] "/docs/:table?"            "/heartbeat"               "/mysqlping"               "/listfields"
+ [5] "/comnames?<params>"       "/country?<params>"
+```
+
+```ruby
+require 'faraday'
+require 'multi_json'
+
+conn = Faraday.new(url: 'https://fishbase.ropensci.org')
+res = conn.get 'heartbeat'
+MultiJson.load(res.body)
+```
+
+The above command returns a Hash like:
+
+```ruby
+=> {"routes"=>
+  ["/docs/:table?",
+   "/heartbeat",
+   "/mysqlping",
+   "/listfields",
+   "/comnames?<params>",
+   "/country?<params>"]}
 ```
 
 ## docs
@@ -306,12 +339,6 @@ Get all field names in a table. In the future, the returned data will include me
     + [Headers](#response-headers)
     + [Body](#response-bodies)
 
-## mysqlping
-
-> GET [/myslping]
-
-Ping the MySQL server to see if it's up or not. Returns logical.
-
 ## comnames
 
 > GET [/comnames{?limit}{?offset}{?fields}]
@@ -321,6 +348,76 @@ Search the common names table
 + Response 200
     + [Headers](#response-headers)
     + [Body](#response-bodies)
+
+```shell
+curl "https://fishbase.ropensci.org/comnames?" |  jq .
+```
+
+> The above command returns JSON structured like this:
+
+```json
+{
+  "routes": [
+    "/docs/:table?",
+    "/heartbeat",
+    "/mysqlping",
+    "/listfields",
+    "/comnames?<params>",
+    "/country?<params>"
+  ]
+}
+```
+
+```r
+library("rfishbase")
+
+common_names(species_list = "Bolbometopon muricatum")
+```
+
+> returns
+
+```r
+Source: local data frame [62 x 6]
+
+               ComName SpecCode C_Code Language        Genus   Species
+                 (chr)    (int)  (chr)    (chr)        (chr)     (chr)
+1            Aliyakyak     5537    608  Visayan Bolbometopon muricatum
+2                Angke     5537    360     Bajo Bolbometopon muricatum
+3                Angke     5537    360    Malay Bolbometopon muricatum
+4                Angol     5537    608    Bikol Bolbometopon muricatum
+5                Bayan     5537    458    Malay Bolbometopon muricatum
+6        Bayan bonggol     5537    458    Malay Bolbometopon muricatum
+7             Berdebed     5537    585  Palauan Bolbometopon muricatum
+8                Boila     5537    090     Gela Bolbometopon muricatum
+9     Bulepapegøjefisk     5537    208   Danish Bolbometopon muricatum
+10 Bumphead parrotfish     5537    036  English Bolbometopon muricatum
+..                 ...      ...    ...      ...          ...       ...
+```
+
+```ruby
+require 'faraday'
+require 'multi_json'
+
+conn = Faraday.new(url: 'https://fishbase.ropensci.org')
+res = conn.get 'comnames', {"SpecCode": 5537}
+dat = MultiJson.load(res.body)
+dat['data'].collect{ |x| x['ComName']}
+```
+
+> The above command returns a Hash like:
+
+```ruby
+=> ["Aliyakyak",
+ "Angke",
+ "Angke",
+ "Angol",
+ "Bayan",
+ "Bayan bonggol",
+ "Berdebed",
+ "Boila",
+ "Bulepapegøjefisk",
+ "Bumphead parrotfish"]
+```
 
 ## countref
 
@@ -725,3 +822,18 @@ Search the taxa table
 + Response 200
     + [Headers](#response-headers)
     + [Body](#response-bodies)
+
+# API Clients
+
+## R - rfishbase
+
+rOpenSci maintains this client, and tracks changes in the API closesly
+
+* On GitHub: [https://github.com/ropensci/rfishbase](https://github.com/ropensci/rfishbase)
+* On CRAN: [https://cran.rstudio.com/web/packages/rfishbase/](https://cran.rstudio.com/web/packages/rfishbase/)
+* Examples are given throughout these API docs.
+* See also the [vignette for rfishbase](https://github.com/ropensci/rfishbase/blob/master/vignettes/tutorial.Rmd)
+
+## Ruby
+
+Not made yet ...
