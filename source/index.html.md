@@ -23,6 +23,10 @@ Welcome to the Fishbase API! You can use our API to access Fishbase data.
 
 We have examples for Shell (using `curl` and `jq`), R, and Ruby! You can view code examples in the dark area to the right (or below if on mobile), and you can switch the programming language of the examples with the tabs in the top right.
 
+<aside class="notice">
+We're still in the process of filling out examples...Some routes below have examples, while some do not.
+</aside>
+
 # Base URL
 
 [https://fishbase.ropensci.org](https://fishbase.ropensci.org)
