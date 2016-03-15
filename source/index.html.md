@@ -13,6 +13,7 @@ toc_footers:
   - <a href='https://ropensci.org/'>rOpenSci</a>
   - <a href='https://github.com/ropensci/'>rOpenSci @ GitHub</a>
   - <a href='https://github.com/ropensci/fishbaseapidocs'>Contribute to these docs</a>
+  - <a href='http://recology.info/fishbasestatus'>API Status!</a>
 
 search: true
 ---
@@ -25,6 +26,10 @@ We have examples for Shell (using `curl` and `jq`), R, and Ruby! You can view co
 
 <aside class="notice">
 We're still in the process of filling out examples...Some routes below have examples, while some do not.
+</aside>
+
+<aside class="warning">
+Check on the status of the API at our <a href="http://recology.info/fishbasestatus">status page</a>
 </aside>
 
 # Base URL
