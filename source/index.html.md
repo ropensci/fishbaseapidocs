@@ -8,12 +8,12 @@ language_tabs:
   - ruby
 
 toc_footers:
-  - <a href='http://www.fishbase.org/search.php'>Fishbase</a>
-  - <a href='http://www.sealifebase.org'>Sealifebase</a>
-  - <a href='https://ropensci.org/'>rOpenSci</a>
-  - <a href='https://github.com/ropensci/'>rOpenSci @ GitHub</a>
-  - <a href='https://github.com/ropensci/fishbaseapidocs'>Contribute to these docs</a>
-  - <a href='http://recology.info/fishbasestatus'>API Status!</a>
+  - <a href='http://www.fishbase.org/search.php' target="_blank">Fishbase</a>
+  - <a href='http://www.sealifebase.org' target="_blank">Sealifebase</a>
+  - <a href='https://ropensci.org/' target="_blank">rOpenSci</a>
+  - <a href='https://github.com/ropensci/' target="_blank">rOpenSci @ GitHub</a>
+  - <a href='https://github.com/ropensci/fishbaseapidocs' target="_blank">Contribute to these docs</a>
+  - <a href='https://ropensci.github.io/fishbasestatus/' target="_blank">API Status!</a>
 
 search: true
 ---
@@ -29,12 +29,12 @@ We're still in the process of filling out examples...Some routes below have exam
 </aside>
 
 <aside class="warning">
-Check on the status of the API at our <a href="http://recology.info/fishbasestatus">status page</a>
+Check on the status of the API at our <a href="https://ropensci.github.io/fishbasestatus/">status page</a>
 </aside>
 
 # Base URL
 
-[https://fishbase.ropensci.org](https://fishbase.ropensci.org)
+<https://fishbase.ropensci.org/>
 
 # Fishbase vs. Sealifebase
 
@@ -45,6 +45,31 @@ To use Sealifebase API insted of Fishbase, add `/sealifebase` to the base URL, l
 [https://fishbase.ropensci.org/sealifebase](https://fishbase.ropensci.org/sealifebase)
 
 Everything described below should work the same for both Fishbase and Sealife base APIs.
+
+# Database versions
+
+<aside class="warning">
+Database versions are supported in the Fishbase API only at this time. We may support multiple versions of Sealifebase in the future.
+</aside>
+
+The Fishbase API supports multiple different versions of the underlying database.
+
+You can request a different database version with a HTTP header like `Accept: application/vnd.ropensci.v3+json`
+
+Where `v3` represents "version 3". Likewise, `v2` is "version 2", and `v1` is "version 1". These versions correspond to specific dates associated with different database versions. The current versions for Fishbase are:
+
+- 201505
+- 201604
+- 201703
+
+The date format `YYYYMM` is four digits for year, then two digits for month, with no spaces/characters between them.
+
+By default, we return the latest date version.
+
+See the [`/versions`](#versions) route for description of the different versions and their names.
+
+In the R client `rfishbase` the database version will be controlled by a parameter or option/env var, so users won't have to pass headers themselves.
+
 
 # HTTP methods
 
@@ -256,6 +281,8 @@ for installation and usage.
 
 ## Root
 
+> GET [/]
+
 `GET https://fishbase.ropensci.org`
 
 ```shell
@@ -271,13 +298,13 @@ to follow redirects.
 
 ## Heartbeat
 
+> GET [/heartbeat]
+
 Lists all the routes, and gives some indicaion of what can be passed to them.
 
 ```shell
 curl "https://fishbase.ropensci.org/heartbeat" |  jq .
 ```
-
-The above command returns JSON structured like this:
 
 ```shell
 {
@@ -338,6 +365,43 @@ Get brief description of each table in the Fishbase database.
     + [Headers](#response-headers)
     + [Body](#response-bodies)
 
+
+## versions
+
+> GET [/versions]
+
+Get Fishbase database versions.
+
++ Response 200 (application/json)
+    + [Headers](#response-headers)
+    + [Body](#response-bodies)
+
+```shell
+curl "https://fishbase.ropensci.org/versions" |  jq .
+```
+
+```shell
+{
+  "data": [
+    {
+      "v1": {
+        "name": "201505",
+        "date_released": "2015-05-20"
+      },
+      "v2": {
+        "name": "201604",
+        "date_released": "2016-04-28"
+      },
+      "v3": {
+        "name": "201703",
+        "date_released": "2017-03-31"
+      }
+    }
+  ],
+  "error": null
+}
+```
+
 ## docs by table
 
 > GET [/docs/{table}]
@@ -359,48 +423,44 @@ Search the common names table
     + [Body](#response-bodies)
 
 ```shell
-curl "https://fishbase.ropensci.org/comnames?" |  jq .
-```
+curl "https://fishbase.ropensci.org/comnames?limit=1" |  jq .
 
-> The above command returns JSON structured like this:
-
-```json
 {
-  "routes": [
-    "/docs/:table?",
-    "/heartbeat",
-    "/mysqlping",
-    "/listfields",
-    "/comnames?<params>",
-    "/country?<params>"
-  ]
-}
+  "count": 319060,
+  "returned": 1,
+  "data": [
+    {
+      "autoctr": 236404,
+      "ComName": " ???????",
+      "Transliteration": "Varimeen",
+      "StockCode": 135,
+      "SpecCode": 121,
+      "C_Code": "356",
+      "Language": "Telugu",
+      "Script": "Telugu",
+...
 ```
 
 ```r
 library("rfishbase")
-
 common_names(species_list = "Bolbometopon muricatum")
 ```
 
-> returns
-
 ```r
-Source: local data frame [62 x 6]
-
-               ComName SpecCode C_Code Language        Genus   Species
-                 (chr)    (int)  (chr)    (chr)        (chr)     (chr)
-1            Aliyakyak     5537    608  Visayan Bolbometopon muricatum
-2                Angke     5537    360     Bajo Bolbometopon muricatum
-3                Angke     5537    360    Malay Bolbometopon muricatum
-4                Angol     5537    608    Bikol Bolbometopon muricatum
-5                Bayan     5537    458    Malay Bolbometopon muricatum
-6        Bayan bonggol     5537    458    Malay Bolbometopon muricatum
-7             Berdebed     5537    585  Palauan Bolbometopon muricatum
-8                Boila     5537    090     Gela Bolbometopon muricatum
-9     Bulepapegøjefisk     5537    208   Danish Bolbometopon muricatum
-10 Bumphead parrotfish     5537    036  English Bolbometopon muricatum
-..                 ...      ...    ...      ...          ...       ...
+# A tibble: 64 x 6
+            ComName SpecCode C_Code         Language        Genus   Species
+              <chr>    <int>  <chr>            <chr>        <chr>     <chr>
+ 1        Aliyakyak     5537    608          Visayan Bolbometopon muricatum
+ 2            Angke     5537    360 Bahasa Indonesia Bolbometopon muricatum
+ 3            Angke     5537    360             Bajo Bolbometopon muricatum
+ 4            Angke     5537    360            Malay Bolbometopon muricatum
+ 5            Angol     5537    608            Bikol Bolbometopon muricatum
+ 6            Bayan     5537    458            Malay Bolbometopon muricatum
+ 7    Bayan bonggol     5537    458            Malay Bolbometopon muricatum
+ 8         Berdebed     5537    585          Palauan Bolbometopon muricatum
+ 9            Boila     5537    090             Gela Bolbometopon muricatum
+10 Bulepapegøjefisk     5537    208           Danish Bolbometopon muricatum
+# ... with 54 more rows
 ```
 
 ```ruby
@@ -412,8 +472,6 @@ res = conn.get 'comnames', {"SpecCode": 5537}
 dat = MultiJson.load(res.body)
 dat['data'].collect{ |x| x['ComName']}
 ```
-
-> The above command returns a Hash like:
 
 ```ruby
 => ["Aliyakyak",
@@ -438,6 +496,11 @@ Count ref
     + [Headers](#response-headers)
     + [Body](#response-bodies)
 
+```shell
+curl "https://fishbase.ropensci.org/countref/?limit=1" |  jq .
+```
+
+
 ## country
 
 > GET [/country{?limit}{?offset}{?fields}]
@@ -447,6 +510,10 @@ Search the country table
 + Response 200
     + [Headers](#response-headers)
     + [Body](#response-bodies)
+
+```shell
+curl "https://fishbase.ropensci.org/country/?limit=1" |  jq .
+```
 
 ## diet
 
@@ -458,6 +525,10 @@ Search the fish diet table
     + [Headers](#response-headers)
     + [Body](#response-bodies)
 
+```shell
+curl "https://fishbase.ropensci.org/diet/?limit=1" |  jq .
+```
+
 ## ecology
 
 > GET [/ecology{?limit}{?offset}{?fields}]
@@ -467,6 +538,10 @@ Search the ecology table
 + Response 200
     + [Headers](#response-headers)
     + [Body](#response-bodies)
+
+```shell
+curl "https://fishbase.ropensci.org/ecology/?limit=1" |  jq .
+```
 
 ## ecosystem
 
@@ -478,6 +553,10 @@ Search the ecosystem table
     + [Headers](#response-headers)
     + [Body](#response-bodies)
 
+```shell
+curl "https://fishbase.ropensci.org/ecosystem/?limit=1" |  jq .
+```
+
 ## fao areas routes
 
 ### faoareas
@@ -487,6 +566,32 @@ Search the ecosystem table
 + Response 200
     + [Headers](#response-headers)
     + [Body](#response-bodies)
+
+```shell
+curl "https://fishbase.ropensci.org/faoareas/?limit=1" |  jq .
+
+{
+  "count": 60522,
+  "returned": 1,
+  "data": [
+    {
+      "autoctr": 483,
+      "AreaCode": 1,
+      "SpecCode": 2,
+      "StockCode": 1,
+      "Status": "endemic",
+      "Entered": 2,
+      "DateEntered": "1990-10-19T00:00:00.000Z",
+      "Modified": 675,
+      "DateModified": "2011-02-11T17:16:45.000Z",
+      "Expert": null,
+      "DateChecked": null,
+      "TS": null
+    }
+  ],
+  "error": null
+}
+```
 
 ### faoareas by id
 
@@ -501,6 +606,10 @@ List faoareas by id
     + [Headers](#response-headers)
     + [Body](#response-bodies)
 
+```shell
+curl "https://fishbase.ropensci.org/faoareas/4" |  jq .
+```
+
 ## faoarref
 
 > GET [/faoarref{?limit}{?offset}{?fields}]
@@ -508,6 +617,10 @@ List faoareas by id
 + Response 200
     + [Headers](#response-headers)
     + [Body](#response-bodies)
+
+```shell
+curl "https://fishbase.ropensci.org/faoarref?limit=1" |  jq .
+```
 
 ### faoarref by id
 
@@ -522,6 +635,10 @@ List faoareas by id
     + [Headers](#response-headers)
     + [Body](#response-bodies)
 
+```shell
+curl "https://fishbase.ropensci.org/faoarref/1" |  jq .
+```
+
 ## fecundity
 
 > GET [/fecundity{?limit}{?offset}{?fields}]
@@ -532,6 +649,10 @@ Search the fecundity table
     + [Headers](#response-headers)
     + [Body](#response-bodies)
 
+```shell
+curl "https://fishbase.ropensci.org/fecundity?limit=1" |  jq .
+```
+
 ## fooditems
 
 > GET [/fooditems{?limit}{?offset}{?fields}]
@@ -541,6 +662,49 @@ Search the fooditems table
 + Response 200
     + [Headers](#response-headers)
     + [Body](#response-bodies)
+
+```shell
+curl "https://fishbase.ropensci.org/fooditems?limit=1" |  jq .
+
+{
+  "count": 53598,
+  "returned": 1,
+  "data": [
+    {
+      "autoctr": 38,
+      "StockCode": 1,
+      "SpecCode": 2,
+      "Locality": "Sudd swamps, River Nile.",
+      "C_Code": "736",
+      "FoodsRefNo": 6160,
+      "FoodI": "detritus",
+      "PreyStage": "n.a./others",
+      "FoodII": "detritus",
+      "FoodIII": "debris",
+      "Commoness": 23,
+      "CommonessII": "very common (21-50%)",
+      "Foodgroup": "unidentified",
+      "Foodname": "< 1 mm organic debris",
+      "PreySpecCode": null,
+      "PreySpecCodeSLB": null,
+      "AlphaCode": null,
+      "PreyTroph": null,
+      "PreySeTroph": null,
+      "TrophRefNo": null,
+      "PredatorStage": "juv./adults",
+      "Locality2": "Locality: Sudd swamps, River Nile; no. of fish examined=48; size=2.3-35.8 cm SL. Also Ref. 42341.",
+      "Entered": 34,
+      "Dateentered": "1993-10-07T00:00:00.000Z",
+      "Modified": 34,
+      "Datemodified": "2003-02-24T00:00:00.000Z",
+      "Expert": null,
+      "Datechecked": null,
+      "TS": null
+    }
+  ],
+  "error": null
+}
+```
 
 ## Genera
 
@@ -556,6 +720,12 @@ List genera
     + [Headers](#response-headers)
     + [Body](#response-bodies)
 
+```shell
+curl "https://fishbase.ropensci.org/genera?genus=Abalistes" |  jq .count
+
+10991
+```
+
 ## Genera by id
 
 > GET [/genera/{id}]
@@ -569,6 +739,10 @@ List genera by id
     + [Headers](#response-headers)
     + [Body](#response-bodies)
 
+```shell
+curl "https://fishbase.ropensci.org/genera/5/" |  jq .
+```
+
 ## intrcase
 
 > GET [/intrcase{?limit}{?offset}{?fields}]
@@ -578,6 +752,10 @@ Search the intrcase table
 + Response 200
     + [Headers](#response-headers)
     + [Body](#response-bodies)
+
+```shell
+curl "https://fishbase.ropensci.org/intrcase?limit=1" |  jq .
+```
 
 ## listfields
 
@@ -589,6 +767,10 @@ List fields across all tables. Optionally, search for particular fields. In addi
     + [Headers](#response-headers)
     + [Body](#response-bodies)
 
+```shell
+curl "https://fishbase.ropensci.org/listfields" |  jq .
+```
+
 ## maturity
 
 > GET [/maturity{?limit}{?offset}{?fields}]
@@ -598,6 +780,10 @@ Search the maturity table
 + Response 200
     + [Headers](#response-headers)
     + [Body](#response-bodies)
+
+```shell
+curl "https://fishbase.ropensci.org/maturity?limit=1" |  jq .
+```
 
 ## morphdat
 
@@ -756,6 +942,45 @@ List species
     + [Headers](#response-headers)
     + [Body](#response-bodies)
 
+```shell
+curl "https://fishbase.ropensci.org/species?genus=Labroides&species=bicolor" | jq .
+```
+
+```r
+tibble::as_tibble(species("Labroides bicolor"))
+
+# A tibble: 1 x 100
+            sciname     Genus Species SpeciesRefNo              Author
+              <chr>     <chr>   <chr>        <int>               <chr>
+1 Labroides bicolor Labroides bicolor         2334 Fowler & Bean, 1928
+# ... with 95 more variables: FBname <chr>, PicPreferredName <chr>,
+#   PicPreferredNameM <lgl>, PicPreferredNameF <lgl>, PicPreferredNameJ <lgl>,
+#   FamCode <int>, Subfamily <lgl>, GenCode <int>, SubGenCode <lgl>,
+#   BodyShapeI <chr>, Source <chr>, AuthorRef <lgl>, Remark <lgl>,
+#   TaxIssue <int>, Fresh <int>, Brack <int>, Saltwater <int>,
+#   DemersPelag <chr>, AnaCat <lgl>, MigratRef <lgl>, DepthRangeShallow <int>,
+#   DepthRangeDeep <int>, DepthRangeRef <int>, DepthRangeComShallow <int>,
+#   DepthRangeComDeep <int>, DepthComRef <int>, LongevityWild <lgl>,
+#   LongevityWildRef <lgl>, LongevityCaptive <lgl>, LongevityCapRef <lgl>,
+#   Vulnerability <dbl>, Length <dbl>, LTypeMaxM <chr>, LengthFemale <lgl>,
+#   LTypeMaxF <lgl>, MaxLengthRef <int>, CommonLength <lgl>, LTypeComM <lgl>,
+#   CommonLengthF <lgl>, LTypeComF <lgl>, CommonLengthRef <lgl>, Weight <lgl>,
+#   WeightFemale <lgl>, MaxWeightRef <lgl>, Pic <lgl>, PictureFemale <lgl>,
+#   LarvaPic <lgl>, EggPic <lgl>, ImportanceRef <lgl>, Importance <lgl>,
+#   PriceCateg <chr>, PriceReliability <chr>, Remarks7 <lgl>,
+#   LandingStatistics <lgl>, Landings <lgl>, MainCatchingMethod <lgl>,
+#   II <lgl>, MSeines <int>, MGillnets <int>, MCastnets <int>, MTraps <int>,
+#   MSpears <int>, MTrawls <int>, MDredges <int>, MLiftnets <int>,
+#   MHooksLines <int>, MOther <int>, UsedforAquaculture <chr>, LifeCycle <lgl>,
+#   AquacultureRef <lgl>, UsedasBait <chr>, BaitRef <lgl>, Aquarium <chr>,
+#   AquariumFishII <chr>, AquariumRef <int>, GameFish <int>, GameRef <lgl>,
+#   Dangerous <chr>, DangerousRef <lgl>, Electrogenic <chr>, ElectroRef <lgl>,
+#   Complete <lgl>, GoogleImage <int>, Comments <chr>, Profile <lgl>,
+#   PD50 <dbl>, Emblematic <int>, Entered <int>, DateEntered <chr>,
+#   Modified <int>, DateModified <chr>, Expert <int>, DateChecked <chr>,
+#   TS <lgl>, SpecCode <int>
+```
+
 ## Species by id
 
 > GET [/species/{id}]
@@ -819,6 +1044,54 @@ Search the synonyms table
     + [Headers](#response-headers)
     + [Body](#response-bodies)
 
+```shell
+curl "https://fishbase.ropensci.org/synonyms?SpecCode=5537" | jq '[.data[] | {genus: .SynGenus, species: .SynSpecies}]'
+```
+
+```shell
+[
+  {
+    "genus": "Bolbomatopon",
+    "species": "muricatum"
+  },
+  {
+    "genus": "Bolbometopon",
+    "species": "muricantum"
+  },
+  {
+    "genus": "Bolbometopon",
+    "species": "muricatum"
+  },
+  {
+    "genus": "Bolbometopon",
+    "species": "muricatus"
+  },
+  {
+    "genus": "Bulbometopon",
+    "species": "muricatum"
+  },
+  {
+    "genus": "Callyodon",
+    "species": "muricatus"
+  },
+  {
+    "genus": "Scarus",
+    "species": "muricatus"
+  }
+]
+```
+
+```r
+synonyms("Callyodon murica")
+
+# A tibble: 1 x 12
+  SynCode SpecCode  SynGenus SynSpecies  Status Valid       Synonymy
+    <int>    <int>     <chr>      <chr>   <chr> <lgl>          <chr>
+1   59804     5537 Callyodon  muricatus synonym FALSE senior synonym
+# ... with 5 more variables: Combination <chr>, Misspelling <lgl>,
+#   CoL_ID <lgl>, TSN <lgl>, WoRMS_ID <int>
+```
+
 ## taxa
 
 > GET [/taxa{?limit}{?offset}{?fields}]
@@ -831,6 +1104,34 @@ Search the taxa table
 + Response 200
     + [Headers](#response-headers)
     + [Body](#response-bodies)
+
+```shell
+curl "https://fishbase.ropensci.org/taxa?Species=parmiferus" | jq .
+
+{
+  "count": 1,
+  "returned": 1,
+  "data": [
+    {
+      "SpecCode": 48051,
+      "Genus": "Asprocottus",
+      "Species": "parmiferus",
+      "SpeciesRefNo": 26334,
+      "Author": "Taliev, 1955",
+      "FBname": null,
+      "FamCode": 584,
+      "GenCode": 5868,
+      "SubGenCode": null,
+      "Remark": null,
+      "SubFamily": null,
+      "Family": "Abyssocottidae",
+      "Order": "Scorpaeniformes",
+      "Class": "Actinopterygii"
+    }
+  ],
+  "error": null
+}
+```
 
 # API Clients
 
